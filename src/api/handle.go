@@ -1,7 +1,6 @@
 package api
 
 import (
-	"encoding/json"
 	"fmt"
 	"mlog"
 	"net/http"
@@ -14,6 +13,7 @@ var (
 
 func RegisterHandle() {
 	http.HandleFunc("/geo", geoHandle)
+	http.HandleFunc("/regeo", regeoHandle)
 	return
 }
 
@@ -28,15 +28,35 @@ func geoHandle(w http.ResponseWriter, req *http.Request) {
 			continue
 		}
 
-		js := make(map[string]interface{})
-		err = json.Unmarshal(body, &js)
+		js, err := NewJsonMap(body)
 		if err != nil {
 			mlog.Error(err)
 			continue
 		}
+		mlog.Debug(js)
 
-		w.Write([]byte("page not found"))
+		w.Write([]byte(js.Get("geocodes/formatted_address").(string) + "\n"))
 	}
 
 	return
+}
+
+func regeoHandle(w http.ResponseWriter, req *http.Request) {
+	req.ParseForm()
+	location := req.Form["location"][0]
+	url := fmt.Sprintf("http://restapi.amap.com/v3/geocode/regeo?output=json&location=%s&key=%s", location, key)
+	body, err := httpHandler.Get(url)
+	if err != nil {
+		mlog.Error(err)
+		return
+	}
+
+	js, err := NewJsonMap(body)
+	if err != nil {
+		mlog.Error(err)
+		return
+	}
+
+	mlog.Debug(js)
+	w.Write([]byte(js.Get("regeocodes/formatted_address").(string)))
 }

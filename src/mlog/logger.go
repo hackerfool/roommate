@@ -61,7 +61,7 @@ type LogMsg struct {
 func New(out LoggerInterface) *Mlogger {
 	logger := new(Mlogger)
 	logger.level = INFO
-	logger.calldepth = 2
+	logger.calldepth = 3
 	logger.out = out
 	return logger
 }
@@ -70,6 +70,17 @@ func newConsoleLogger() *Mlogger {
 	consoleLogger := NewConsoleLogger()
 	logger := New(consoleLogger)
 	return logger
+}
+
+func (this *Mlogger) SetLevel(level int) {
+	this.mu.Lock()
+	defer this.mu.Unlock()
+
+	if level >= TRACE && level <= ERROR {
+		this.level = level
+	}
+
+	return
 }
 
 func (this *Mlogger) Trace(format string, v ...interface{}) {
@@ -130,6 +141,10 @@ func (this *Mlogger) writeMsg(logLevel int, format string, v ...interface{}) err
 }
 
 var dfl = newConsoleLogger()
+
+func SetLevel(level int) {
+	dfl.SetLevel(level)
+}
 
 func Trace(v ...interface{}) {
 	dfl.Trace("%s", fmt.Sprint(v...))

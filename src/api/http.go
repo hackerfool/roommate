@@ -19,10 +19,11 @@ func (*httpHandle) Get(url string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	buf := make([]byte, resp.ContentLength)
+	mlog.Debug("recv ", url, " data:", resp.ContentLength, " ", resp.Status)
+	buf := make([]byte, 102400)
 	_, err = io.ReadFull(resp.Body, buf)
 	if err != nil {
+		mlog.Error(fmt.Sprintf("[HTTP_GET]%s %s read:%s", err, resp.Status, buf))
 		return nil, err
 	}
 

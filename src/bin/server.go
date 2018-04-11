@@ -21,6 +21,7 @@ func main() {
 	}
 
 	api.RegisterHandle()
+	mlog.SetLevel(mlog.DEBUG)
 	mlog.Info("server start ok,listen on ", *listenPort, ".")
 	err := http.ListenAndServe(fmt.Sprintf(":%d", *listenPort), nil)
 	mlog.Fatal(err)
