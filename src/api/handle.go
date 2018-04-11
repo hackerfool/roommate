@@ -28,15 +28,14 @@ func geoHandle(w http.ResponseWriter, req *http.Request) {
 			continue
 		}
 
-		js := &geoRespone{}
-		err = json.Unmarshal(body, js)
+		js := make(map[string]interface{})
+		err = json.Unmarshal(body, &js)
 		if err != nil {
 			mlog.Error(err)
 			continue
 		}
-		mlog.Debug(js)
 
-		w.Write(body)
+		w.Write([]byte("page not found"))
 	}
 
 	return

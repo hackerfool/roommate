@@ -107,12 +107,12 @@ func (this *Mlogger) writeMsg(logLevel int, format string, v ...interface{}) err
 		_, file, line, ok := runtime.Caller(this.calldepth)
 		if ok {
 			_, filename := path.Split(file)
-			perfix = fmt.Sprintf("[%d]%s %s:%d", _Pid, levelPrefix[logLevel], filename, line)
+			perfix = fmt.Sprintf("[%d]%s %s:%d ", _Pid, levelPrefix[logLevel], filename, line)
 		} else {
-			perfix = fmt.Sprintf("[%d]%s", _Pid, levelPrefix[logLevel])
+			perfix = fmt.Sprintf("[%d]%s ", _Pid, levelPrefix[logLevel])
 		}
 	} else {
-		perfix = fmt.Sprintf("[%d]", _Pid)
+		perfix = fmt.Sprintf("[%d]%s ", _Pid, levelPrefix[logLevel])
 	}
 
 	msg := perfix + fmt.Sprintf(format, v...)

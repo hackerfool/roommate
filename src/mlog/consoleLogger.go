@@ -34,7 +34,7 @@ func (l *ConsoleLogger) WriteMsg(msg LogMsg) {
 	}
 	// l.log.Println(msg.msg)
 	l.out.WriteString(msg.msg)
-	l.out.WriteString("\r\n")
+	l.out.WriteString("\n")
 	return
 }
 
