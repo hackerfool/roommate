@@ -27,7 +27,7 @@ func geoHandle(w http.ResponseWriter, req *http.Request) {
 			mlog.Error(err)
 			continue
 		}
-
+		mlog.Info(body)
 		js, err := NewJsonMap(body)
 		if err != nil {
 			mlog.Error(err)
@@ -51,6 +51,7 @@ func regeoHandle(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	mlog.Info(body)
 	js, err := NewJsonMap(body)
 	if err != nil {
 		mlog.Error(err)
@@ -58,5 +59,5 @@ func regeoHandle(w http.ResponseWriter, req *http.Request) {
 	}
 
 	mlog.Debug(js)
-	w.Write([]byte(js.Get("regeocodes/formatted_address").(string)))
+	w.Write([]byte(js.Get("regeocode/formatted_address").(string)))
 }

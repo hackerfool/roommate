@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const default_buf_size = 1024
+
 type httpHandle struct {
 }
 
@@ -20,9 +22,33 @@ func (*httpHandle) Get(url string) ([]byte, error) {
 		return nil, err
 	}
 	mlog.Debug("recv ", url, " data:", resp.ContentLength, " ", resp.Status)
-	buf := make([]byte, 102400)
-	_, err = io.ReadFull(resp.Body, buf)
-	if err != nil {
+
+	var buf []byte
+	if resp.ContentLength > 0 {
+		buf = make([]byte, resp.ContentLength)
+	} else {
+		buf = make([]byte, 0)
+	}
+
+	var (
+		nerr  error
+		readN = default_buf_size
+		read  int
+	)
+
+	if resp.ContentLength > 0 {
+		_, nerr = io.ReadFull(resp.Body, buf)
+	} else {
+		nbuf := make([]byte, default_buf_size)
+		for readN == default_buf_size && nerr == nil {
+			readN, nerr = io.ReadFull(resp.Body, nbuf)
+			read += readN
+			buf = append(buf, nbuf...)
+		}
+		buf = buf[0:read]
+	}
+
+	if err != nil && err != io.ErrUnexpectedEOF {
 		mlog.Error(fmt.Sprintf("[HTTP_GET]%s %s read:%s", err, resp.Status, buf))
 		return nil, err
 	}

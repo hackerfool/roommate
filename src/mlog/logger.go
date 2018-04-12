@@ -114,7 +114,7 @@ func (this *Mlogger) writeMsg(logLevel int, format string, v ...interface{}) err
 	}
 
 	var perfix string
-	if this.calldepth > 0 && logLevel < INFO {
+	if this.calldepth > 0 {
 		_, file, line, ok := runtime.Caller(this.calldepth)
 		if ok {
 			_, filename := path.Split(file)
