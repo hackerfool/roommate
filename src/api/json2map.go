@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"mlog"
 )
 
 type jsonmap struct {
@@ -21,6 +22,7 @@ func (js *jsonmap) Unmarshal(data []byte) error {
 		return err
 	}
 
+	mlog.Debug(body)
 	for k, v := range body {
 		js.Set(k, v)
 	}
@@ -35,18 +37,24 @@ func (js *jsonmap) Get(path string) interface{} {
 func (js *jsonmap) Set(k string, v interface{}) {
 	switch v.(type) {
 	case []interface{}:
+		set(js.data, k, v)
 		for _, vv := range v.([]interface{}) {
 			js.Set(k, vv)
 		}
 	case map[string]interface{}:
+		set(js.data, k, v)
 		for kk, vv := range v.(map[string]interface{}) {
 			js.Set(k+"/"+kk, vv)
 		}
 	default:
-		if _, ok := js.data[k]; !ok {
-			js.data[k] = v
-		}
+		set(js.data, k, v)
 	}
 
 	return
+}
+
+func set(m map[string]interface{}, k string, v interface{}) {
+	if _, ok := m[k]; !ok {
+		m[k] = v
+	}
 }

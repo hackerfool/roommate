@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const default_buf_size = 1024
+const defaultBufSize = 1024
 
 type httpHandle struct {
 }
@@ -32,15 +32,15 @@ func (*httpHandle) Get(url string) ([]byte, error) {
 
 	var (
 		nerr  error
-		readN = default_buf_size
+		readN = defaultBufSize
 		read  int
 	)
 
 	if resp.ContentLength > 0 {
 		_, nerr = io.ReadFull(resp.Body, buf)
 	} else {
-		nbuf := make([]byte, default_buf_size)
-		for readN == default_buf_size && nerr == nil {
+		nbuf := make([]byte, defaultBufSize)
+		for readN == defaultBufSize && nerr == nil {
 			readN, nerr = io.ReadFull(resp.Body, nbuf)
 			read += readN
 			buf = append(buf, nbuf...)
