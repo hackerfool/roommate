@@ -9,7 +9,12 @@ import (
 	"time"
 )
 
-var ()
+var (
+	gdkey  = ""
+	webkey = ""
+	appid  = ""
+	secret = ""
+)
 
 var (
 	sessionMap = make(map[string][]byte)
@@ -140,6 +145,13 @@ func wxRunHandle(w http.ResponseWriter, req *http.Request) {
 		timestamp := fmt.Sprintf("%d-%d-%d", date.Year(), date.Month(), date.Day())
 		wxRunDataRes.StepInfoList = append(wxRunDataRes.StepInfoList, stepInfoList2db{Timestamp: timestamp, Step: info.Step})
 	}
+	l := len(wxRunDataRes.StepInfoList)
+	seventotal := 0
+	for i := 1; i < 8; i++ {
+		seventotal += wxRunDataRes.StepInfoList[l-i].Step
+	}
+	wxRunDataRes.SevenDayAvg = seventotal / 7
+	wxRunDataRes.DiffLastDay = wxRunDataRes.StepInfoList[l-1].Step - wxRunDataRes.StepInfoList[l-2].Step
 	res, err := json.Marshal(wxRunDataRes)
 	if err != nil {
 		mlog.Error(err)

@@ -21,4 +21,6 @@ type stepInfoList2db struct {
 }
 type wxRunDataResponse struct {
 	StepInfoList []stepInfoList2db `json:"stepInfoList"`
+	SevenDayAvg  int
+	DiffLastDay  int
 }
