@@ -7,6 +7,8 @@ import (
 	"mlog"
 	"net/http"
 	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 var (
@@ -17,45 +19,65 @@ var (
 )
 
 var (
+	server *gin.Engine
+)
+
+var (
 	sessionMap = make(map[string][]byte)
 )
 
-func RegisterHandle() {
-	http.HandleFunc("/geo", geoHandle)
-	http.HandleFunc("/regeo", regeoHandle)
-	http.HandleFunc("/wx_login", wxLoginHandle)
-	http.HandleFunc("/wx_decode", wxDecodeHandle)
-	http.HandleFunc("/wx_run", wxRunHandle)
+func Run(addr, port, mode string) {
+	switch mode {
+	case "test":
+		gin.SetMode(gin.TestMode)
+	case "debug":
+		gin.SetMode(gin.DebugMode)
+	default:
+		gin.SetMode(gin.ReleaseMode)
+	}
+	server = gin.Default()
+	registerHandle()
+	listenAddr := fmt.Sprintf("%s:%s", addr, port)
+	server.Run(listenAddr)
+}
+
+func registerHandle() {
+	// http.HandleFunc("/geo", geoHandle)
+	// http.HandleFunc("/regeo", regeoHandle)
+	// http.HandleFunc("/wx_login", wxLoginHandle)
+	// http.HandleFunc("/wx_decode", wxDecodeHandle)
+	// http.HandleFunc("/wx_run", wxRunHandle)
+	server.GET("/geo", geoHandle)
+	server.GET("/regeo", regeoHandle)
+
 	return
 }
 
-func geoHandle(w http.ResponseWriter, req *http.Request) {
-	req.ParseForm()
-	city := req.Form["city"][0]
-	for _, address := range req.Form["addres"] {
+func geoHandle(c *gin.Context) {
+	city := c.Query("city")
+	for _, address := range c.QueryArray("addres") {
 		url := fmt.Sprintf("http://restapi.amap.com/v3/geocode/geo?city=%s&address=%s&output=json&key=%s", city, address, gdkey)
 		body, err := httpHandler.Get(url)
 		if err != nil {
 			mlog.Error(err)
 			continue
 		}
-		mlog.Info(body)
 		js, err := NewJsonMap(body)
 		if err != nil {
 			mlog.Error(err)
 			continue
 		}
-		mlog.Debug(js)
 
-		w.Write([]byte(js.Get("geocodes/formatted_address").(string) + "\n"))
+		// c.Writer.Write( + "\n"))
+		c.String(http.StatusOK, "%s\n", js.Get("geocodes/formatted_address"))
+
 	}
 
 	return
 }
 
-func regeoHandle(w http.ResponseWriter, req *http.Request) {
-	req.ParseForm()
-	location := req.Form["location"][0]
+func regeoHandle(c *gin.Context) {
+	location := c.Param("location")
 	url := fmt.Sprintf("http://restapi.amap.com/v3/geocode/regeo?output=json&location=%s&key=%s", location, gdkey)
 	body, err := httpHandler.Get(url)
 	if err != nil {
@@ -69,8 +91,7 @@ func regeoHandle(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	mlog.Debug(js)
-	w.Write([]byte(js.Get("regeocode/formatted_address").(string)))
+	c.String(http.StatusOK, "%s", []byte(js.Get("regeocode/formatted_address").(string)))
 }
 
 func wxLoginHandle(w http.ResponseWriter, req *http.Request) {

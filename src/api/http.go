@@ -5,7 +5,6 @@ import (
 	"io"
 	"mlog"
 	"net/http"
-	"time"
 )
 
 const defaultBufSize = 1024
@@ -16,7 +15,7 @@ type httpHandle struct {
 var httpHandler = &httpHandle{}
 
 func (*httpHandle) Get(url string) ([]byte, error) {
-	start := time.Now()
+	// start := time.Now()
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -53,9 +52,9 @@ func (*httpHandle) Get(url string) ([]byte, error) {
 		return nil, err
 	}
 
-	delay := (time.Now().Sub(start)) / time.Millisecond
-	logInfo := fmt.Sprintf("[HTTP_GET]%s\r\n%dms %s", url, delay, string(buf))
-	mlog.Info(logInfo)
+	// delay := (time.Now().Sub(start)) / time.Millisecond
+	// logInfo := fmt.Sprintf("[HTTP_GET]%s\r\n%dms %s", url, delay, string(buf))
+	// mlog.Info(logInfo)
 
 	return buf, nil
 }
